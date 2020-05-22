@@ -57,11 +57,14 @@ def merge_tfstates(dest, src)
         addr = address(sr)
         dr = dest_resoures[addr]
         if dr != nil
-            raise "resource #{addr} is conflict" if sr['mode'] != 'data'
-            if sr == dr
-                next # skip to add same data resource
+            if sr['mode'] == 'data'
+                if sr == dr
+                    next # skip to add same data resource
+                else
+                    raise "resources #{addr} are different" if sr != dr
+                end
             else
-                raise "resources #{addr} are different" if sr != dr
+                raise "resources #{addr} are conflict"
             end
         end
         dest['resources'].push(sr)
