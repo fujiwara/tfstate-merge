@@ -49,13 +49,13 @@ def merge_tfstates(dest, src)
         raise "terraform_version mismatch #{dest['terraform_version']} != #{src['terraform_version']}"
     end
 
-    dest_resoures = {}
+    dest_resources = {}
     dest['resources'].each do |r|
-        dest_resoures[address(r)] = r
+        dest_resources[address(r)] = r
     end
     src['resources'].each do |sr|
         addr = address(sr)
-        dr = dest_resoures[addr]
+        dr = dest_resources[addr]
         if dr != nil
             if sr['mode'] == 'data'
                 if sr == dr
