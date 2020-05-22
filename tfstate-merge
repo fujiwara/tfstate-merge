@@ -7,7 +7,7 @@ require 'fileutils'
 def main
     options = {}
     opt = OptionParser.new
-    opt.on('-i [ext]') {|v| options[:inplace] = v }
+    opt.on('-i[ext]') {|v| options[:inplace] = v }
     opt.parse!(ARGV)
 
     dest_file = ARGV[0]
@@ -17,10 +17,9 @@ def main
 
     state = merge_tfstates(dest, src)
 
-    if ext = options[:inplace]
-        back = dest_file + ext
-        if back != dest_file
-            FileUtils.mv(dest_file, back)
+    if options.has_key?(:inplace)
+        if ext = options[:inplace]
+            FileUtils.mv(dest_file, dest_file+ext)
         end
         File.open(dest_file, mode = 'w') do |file|
             file.write(JSON.pretty_generate(state))
