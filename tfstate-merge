@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'optparse'
+require 'fileutils'
+
+def main
+    options = {}
+    opt = OptionParser.new
+    opt.on('-i [ext]') {|v| options[:inplace] = v }
+    opt.parse!(ARGV)
+
+    dest_file = ARGV[0]
+    src_file = ARGV[1]
+    dest = load_file(dest_file)
+    src = load_file(src_file)
+
+    state = merge_tfstates(dest, src)
+
+    if ext = options[:inplace]
+        back = dest_file + ext
+        if back != dest_file
+            FileUtils.mv(dest_file, back)
+        end
+        File.open(dest_file, mode = 'w') do |file|
+            file.write(JSON.pretty_generate(state))
+        end
+    else
+        puts JSON.pretty_generate(state)
+    end
+end
+
+def load_file(name)
+    state = {}
+    File.open(name) do |file|
+        state = JSON.load(file)
+    end
+    state
+end
+
+def address(resource)
+    [resource['mode'], resource['type'], resource['name']].join('.')
+end
+
+def merge_tfstates(dest, src)
+    if dest['version'] != src['version']
+        raise "tfstate version mismatch #{dest['version']} != #{src['version']}"
+    end
+    if dest['terraform_version'] != src['terraform_version']
+        raise "terraform_version mismatch #{dest['terraform_version']} != #{src['terraform_version']}"
+    end
+
+    dest_resoures = {}
+    dest['resources'].each do |r|
+        dest_resoures[address(r)] = r
+    end
+    src['resources'].each do |sr|
+        addr = address(sr)
+        dr = dest_resoures[addr]
+        if dr != nil
+            raise "resource #{addr} is conflict" if sr['mode'] != 'data'
+            if sr == dr
+                next # skip to add same data resource
+            else
+                raise "resources #{addr} are different" if sr != dr
+            end
+        end
+        dest['resources'].push(sr)
+    end
+
+    dest['serial'] += 1
+    dest
+end
+
+main
