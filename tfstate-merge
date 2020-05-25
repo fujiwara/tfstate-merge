@@ -42,6 +42,9 @@ def address(resource)
 end
 
 def merge_tfstates(dest, src)
+    if dest['version'] != 4
+        raise "Unsupported tfstate version %d", dest['version']
+    end
     if dest['version'] != src['version']
         raise "tfstate version mismatch #{dest['version']} != #{src['version']}"
     end
