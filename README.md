@@ -2,8 +2,6 @@
 
 A tool to merge tfstate files.
 
-This is pre alpha version. Do not use to production environments.
-
 ## Usage
 
 ```console
