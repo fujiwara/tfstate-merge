@@ -62,6 +62,7 @@ def merge_tfstates(dest, src)
         if dr != nil
             if sr['mode'] == 'data'
                 if sr == dr
+                    warn "resource #{addr} is duplicated"
                     next # skip to add same data resource
                 else
                     raise "resources #{addr} are different" if sr != dr
