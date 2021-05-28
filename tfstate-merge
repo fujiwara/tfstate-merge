@@ -38,7 +38,7 @@ def load_file(name)
 end
 
 def address(resource)
-    [resource['mode'], resource['type'], resource['name']].join('.')
+    [resource['module'] || '', resource['mode'], resource['type'], resource['name']].join('.')
 end
 
 def merge_tfstates(dest, src)
